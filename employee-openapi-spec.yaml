@@ -1,0 +1,933 @@
+swagger: '2.0'
+info:
+  title: Employee API
+  version: "1.0.6"
+  description:
+
+host: anurag.saxena.ca
+basePath: /ext/api/v2/employees
+securityDefinitions:
+  basic_auth:
+    type: basic
+    description: Basic HTTP auth over https
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+
+paths:
+
+
+
+
+
+
+
+  /employees/:
+    get:
+      tags: [Employees]
+      summary: Get all employees
+      responses:
+        "200":
+          description: Employee details
+          schema:
+            $ref: "#/definitions/EmployeeDetails"
+        "404":
+          $ref: '#/responses/ErrorResponseEmployeeNotFound'
+
+  /employees/{employee_id}:
+    parameters:
+    - name: employee_id
+      description: get employee by ID
+      in: path
+      type: string
+      required: true
+    get:
+      tags: [Employees]
+      summary: Get employee by ID
+      responses:
+        "200":
+          description: Employee details
+          schema:
+            $ref: "#/definitions/EmployeeDetails"
+        "404":
+          $ref: '#/responses/ErrorResponseEmployeeNotFound'
+
+    put:
+      tags: [Employees]
+      summary: Create/Modify employee
+      description: Create/Modify employee
+      parameters:
+      - name: body
+        description: Object with fields to be updated
+        in: body
+        schema:
+          $ref: "#/definitions/EmployeeUpdate"
+      responses:
+        "200":
+          $ref: '#/responses/SuccessResponseEmployeeUpdate'
+        "404":
+          $ref: '#/responses/ErrorResponseEmployeeNotFound'
+
+
+          
+          
+
+
+
+responses:
+
+  SuccessResponseEmployeeCreate:
+    description: Employee created successfuly
+    schema:
+      $ref: '#/definitions/SuccessResponse'
+    examples:
+      application/json:
+        {
+          "id": 1001,
+          "external_id": "sor_employee_external_id_1"
+        }
+
+  SuccessResponseEmployeeUpdate:
+    description: Employee updated successfuly
+    schema:
+      $ref: '#/definitions/SuccessResponse'
+    examples:
+      application/json:
+        {
+          "id": 1001,
+          "external_id": "sor_employee_external_id_1"
+        }
+
+  SuccessResponseEmployeeContactCreate:
+    description: Employee contact created successfuly
+    schema:
+      $ref: '#/definitions/SuccessResponse'
+    examples:
+      application/json:
+        {
+          "id": 1001,
+          "external_id": "crm_employee_contact_external_id_1"
+        }
+
+  SuccessResponseEmployeeContactUpdate:
+    description: Employee contact updated successfuly
+    schema:
+      $ref: '#/definitions/SuccessResponse'
+    examples:
+      application/json:
+        {
+          "id": 1001,
+          "external_id": crm_employee_contact_external_id_1
+        }
+  
+  SuccessResponseDirectoryContent:
+    description: Content of a directory
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+            code:
+              type: integer
+              description: http status response code
+              example: 200
+            name:
+              type: string
+              description: Path to directory
+              example: 'employee/1002/report.pdf'
+            last_modified:
+              type: string
+              format: 'date-time'
+              description: |
+                When the directory was last modified (ISO 8601)
+                example: '2020-07-08T13:30:00+00:00'
+            size:
+              type: integer
+              description: Size of the file in bytes
+    examples:
+            application/json:
+              {
+                "employee_id": 1002,
+                "employee_external_id": "ext_id",
+                "entries": [
+                  {
+                    "last_modified": "2020-01-14T18:58:44+00:00",
+                    "name": "Physician Order/",
+                    "size": 0
+                  },
+                  {
+                    "last_modified": "2020-01-14T18:58:44+00:00",
+                    "name": "Physician Order/file.pdf",
+                    "size": 123456
+                  }
+                ]
+              }
+              
+  SuccessResponseAttachmentDirectoryCreate:
+    description: Directory created
+    schema:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: http status response code
+          example: 201
+        name:
+          type: string
+          description: Url to the directory created
+          example: /new_directory/
+  
+  SuccessResponseAttachmentDirectoryUpdate:
+    description: Directory copied, moved or renamed
+    schema:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: http status response code
+          example: 200
+        name:
+          type: string
+          description: |
+            Url to the new location of the copied or moved directory
+          example: /new_directory_copied/
+  
+
+          
+
+
+  ErrorResponseEmployeeNotFound:
+    description: Employee not found
+    schema:
+      $ref: '#/definitions/ErrorResponse'
+    examples:
+      application/json:
+        {
+          "code": 404,
+          "message": "Employee not found."
+        }
+
+
+
+definitions:
+
+  ErrorResponse:
+    description: Error response
+    type: object
+    properties:
+      code:
+        type: integer
+        description: Response code
+      message:
+        type: string
+        description: Detailed error message
+    required:
+    - code
+    - message
+    
+  DirectoryNotFoundSchema:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: http status response code
+        example: 404
+      message:
+        type: string
+        description: Detail on the error
+        example: Directory "Ghost Directory" not found
+        
+  DeleteDirectoryActionSchema:
+    type: object
+    properties:
+      forced-delete:
+          type: boolean
+          description: required to delete a non-empty directory
+          example: true
+ 
+        
+  FileNotFoundSchema:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: http status response code
+        example: 404
+      message:
+        type: string
+        description: Detail on the error
+        example:
+          File "/path/file.txt" not found
+
+  SuccessResponse:
+    description: Success response.
+    type: object
+    properties:
+      id:
+        type: integer
+        description: AlayaCare ID
+      external_id:
+        type: string
+        description: External ID
+        x-nullable: true
+    required:
+    - id
+    - external_id
+
+  Branch:
+    description: AlayaCare branch.
+    type: object
+    properties:
+      id:
+        type: integer
+        description: AlayaCare branch ID
+        example: 1
+      name:
+        type: string
+        description: AlayaCare branch name
+        example: Toronto branch
+      profile:
+        $ref: '#/definitions/BranchProfile'
+    required:
+    - id
+    - name
+    
+  AttachmentAction:
+    description: Attachment actions
+    type: object
+    properties:
+      action: 
+        type: string
+        example: move
+        enum:
+          - move
+          - copy
+          - rename
+      destination:
+        type: string
+        example: dir2/child1/
+  
+  BranchList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of branches
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Branch'
+
+  Department:
+    description: AlayaCare department.
+    type: object
+    properties:
+      id:
+        type: integer
+        description: AlayaCare department ID
+        example: 1
+      name:
+        type: string
+        description: AlayaCare department name
+        example: Nursing
+    required:
+    - id
+    - name
+
+  DepartmentListItem:
+    allOf:
+    - $ref: '#/definitions/Department'
+    description: AlayaCare department.
+    type: object
+    properties:
+      branch:
+        $ref: '#/definitions/BranchSummary'
+    required:
+    - id
+    - name
+
+  DepartmentList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of departments
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/DepartmentListItem'
+
+  Group:
+    description: AlayaCare group.
+    type: object
+    properties:
+      id:
+        type: integer
+        description: AlayaCare group ID
+        example: 1
+      name:
+        type: string
+        description: AlayaCare group name
+        example: Group 1
+    required:
+    - id
+    - name
+
+  GroupListItem:
+    allOf:
+      - $ref: '#/definitions/Group'
+    description: AlayaCare group item.
+    type: object
+    properties:
+      branch:
+        $ref: '#/definitions/BranchSummary'
+
+  GroupList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of groups
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/GroupListItem'
+
+  Designation:
+    description: AlayaCare designation.
+    type: object
+    properties:
+      designation:
+        type: string
+        description: AlayaCare designation
+        example: RN
+    required:
+    - designation
+
+  DesignationList:
+    allOf:
+     - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of designations
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/Designation'
+
+  Role:
+    description: AlayaCare role
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID of the role
+        example: 1
+      name:
+        type: string
+        description: Name of the role
+        example: 'csc'
+      description:
+        type: string
+        description: Name of the role in the web application
+        example: 'Coordinator'
+      category:
+        type: string
+        description: Category of the role
+        example: 'admin'
+    required:
+    - id
+    - name
+
+  RoleList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of roles
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+            allOf:
+            - $ref: '#/definitions/Role'
+            properties:
+              branch:
+                $ref: '#/definitions/BranchSummary'
+
+  EmploymentType:
+    description: Employment Type
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID of the employment type
+        example: 1
+      name:
+        type: string
+        description: Name of employment type
+        example: 'Full time'
+    required:
+    - id
+
+  EmploymentTypeDetailsList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of employment types
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/EmploymentTypeDetails'
+
+  EmploymentTypeDetails:
+    description: Employment Type Details
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID of the employment type
+        example: 1
+      name:
+        type: string
+        description: Name of employment type
+        example: 'Full time'
+      branch:
+        $ref: '#/definitions/BranchSummary'
+
+  EmployeeNotesDetailsList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of employee notes
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/EmployeeNotesDetails'
+
+  EmployeeNotesDetails:
+    description: An employee note
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID of the employee note
+        example: 123
+      status:
+        type: string
+        default: active
+        description: Status of the employee note. Either `active` or `archived`.
+        example: active
+        enum:
+        - active
+        - archived
+      note_type:
+        type: string
+        description: Note type category of the employee note
+        example: employee_general
+      content:
+        type: string
+        description: Content of the employee note. A subset of HTML is accepted.
+        example: 'Employee requested additional training.'
+      created_at:
+        type: string
+        format: 'date-time'
+        description: Date employee note was created (ISO 8601)
+        example: '2018-07-08T13:30:00+00:00'
+      created_by:
+        type: integer
+        description: AlayaCare ID of the employee who created the employee note.
+        example: 1001
+  
+  EmployeeNotesCreate:
+    description: Employee note data required for creation.
+    type: object
+    properties:
+      status:
+        type: string
+        default: active
+        description: Status of the employee note. Either `active` or `archived`.
+        example: active
+        enum:
+        - active
+        - archived
+      note_type:
+        type: string
+        description: Note type category of the employee note
+        example: employee_general
+      content:
+        type: string
+        description: Content of the employee note. A subset of HTML is accepted.
+        example: 'Employee requested additional training.'
+    required:
+      - note_type
+      - content
+
+  NoteTypesList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of a employee note types
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            note_type:
+              type: string
+              description: Employee note type code
+              example: employee_general
+            name:
+              type: string
+              description: Employee note type display name
+              example: General
+
+  BranchSummary:
+    description: Branch summary
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID of the branch
+        example: 1
+      name:
+        type: string
+        description: Name of the branch
+        example: 'Headquarters'
+
+  ProfileAttribute:
+    type: object
+    properties:
+      tag:
+        description: Attribute key in the demographics object
+        type: string
+        example: first_name
+      description:
+        description: Attribute description as it shows in the web application
+        type: string
+        example: First Name
+
+  ProfileAttributeList:
+    allOf:
+    - $ref: "#/definitions/PaginatedList"
+    description: Paginated list of profile attributes
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/ProfileAttribute'
+
+  ProfilePictureUrl:
+    type: object
+    properties:
+      url:
+        description: Pre-authorized profile picture url.
+        type: string
+        example: https://place-hold.it/200
+
+  Skill:
+    description: A skill or qualification associated to an employee
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1234
+      name:
+        type: string
+        example: Hoyer lift
+
+  EmployeeDetails:
+    description: AlayaCare employee entity
+    type: object
+    properties:
+      demographics:
+        $ref: "#/definitions/EmployeeDemographics"
+      id:
+        type: integer
+      ac_id:
+        type: string
+        description: AlayaCare ID for display in-app
+        example: AC000000024
+      external_id:
+        type: string
+        x-nullable: true
+      profile_id:
+        type: integer
+        example: 7890
+      branch_id:
+        type: integer
+      status:
+        $ref: "#/definitions/EmployeeStatus"
+      roles:
+        type: array
+        description: Employee roles
+        items:
+          $ref: '#/definitions/Role'
+      groups:
+        type: array
+        description: Employee groups
+        items:
+          $ref: '#/definitions/Group'
+      departments:
+        type: array
+        description: Employee departments
+        items:
+          $ref: '#/definitions/Department'
+      designation:
+        type: string
+        x-nullable: true
+      max_weekly_capacity:
+        type: string
+        x-nullable: true
+        example: "24.5"
+      min_weekly_capacity:
+        type: string
+        example : "10"
+      username:
+        type: string
+      skills:
+        type: array
+        description: List of skills associated to an employee
+        items:
+          $ref: '#/definitions/Skill'
+      ssn_sin:
+        type: string
+        description: Social security number or Social insurance number of the employee
+        example: 123456789
+        x-nullable: true          
+      contacts:
+        type: array
+        description: Employee contacts
+        items:
+          $ref: '#/definitions/EmployeeContact'
+      language:
+        type: string
+        example: en
+      payroll_number:
+        type: string
+        example: A123
+      employment_type:
+        $ref: '#/definitions/EmploymentType'
+      cost_centre:
+        $ref: '#/definitions/CostCentre'
+      timezone:
+        description: |
+          Timezone name in IANA format (iana.org/time-zones). If not set, returns the branch timezone.
+        type: string
+        example: America/Toronto
+    required:
+      - id
+      - ac_id
+      - external_id
+      - demographics
+      - branch_id
+      - status
+      - contacts
+
+  EmployeeStatus:
+    description: |
+        Enum of the status of an employee
+    type: string
+    enum:
+    - active
+    - pending
+    - on_hold
+    - suspended
+    - terminated
+    - applicant
+    - rejected
+    - unknown
+
+  EmployeeStatusCreate:
+    description: |
+        Enum of the status of an employee
+    type: string
+    enum:
+    - active
+    - pending
+    - on_hold
+    - suspended
+    - terminated
+    - applicant
+    - rejected
+
+  EmployeeStatusUpdate:
+    description: AlayaCare employee entity data for status update
+    type: object
+    properties:
+      status:
+        description: Updatable status of an employee
+        type: string
+        example: terminated
+        enum:
+          - active
+          - pending
+          - on_hold
+          - suspended
+          - terminated
+          - applicant
+          - rejected
+      comment:
+        description: Can only be set for employee termination  
+        type: string
+        example: Employee is moving to another agency
+    required:
+      - status
+
+  EmployeeList:
+    allOf:
+    - $ref: '#/definitions/PaginatedList'
+    description: |
+      List of employees
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          allOf:
+          - $ref: "#/definitions/Employee"
+          properties:
+            branch:
+              $ref: '#/definitions/BranchSummary'
+
+  Employee:
+    description: |
+      AlayaCare employee list view
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      ac_id:
+        type: string
+        description: AlayaCare ID for display in-app
+        example: AC000000024
+      external_id:
+        type: string
+        example: external_id_1
+        x-nullable: true
+      profile_id:
+        type: integer
+        example: 7890
+      first_name:
+        type: string
+        example: John
+      last_name:
+        type: string
+        example: Smith
+        x-nullable: true
+      status:
+        $ref: "#/definitions/EmployeeStatus"
+      job_title:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        example: john@smith.com
+      phone:
+        type: string
+        x-nullable: true
+        example: "+15555555555"
+      phone_other:
+        type: string
+        x-nullable: true
+        example: "+15555555555"
+      designation:
+        type: string
+        x-nullable: true
+      departments:
+        type: array
+        items:
+          type: integer
+          description: ID of a department
+      _link:
+        type: string
+
+  EmployeeUpdate:
+    description: AlayaCare employee entity data for creation
+    type: object
+    properties:
+      demographics:
+        $ref: '#/definitions/EmployeeDemographics'
+      external_id:
+        type: string
+      username:
+        type: string
+        example: john.smith
+      roles:
+        description: |
+          List of roles. Role objects have ID and name for convenience
+          of input, but only the IDs are used here. For valid IDs,
+          request /roles.
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      groups:
+        description: |
+          List of groups. Group objects have ID and name for convenience
+          of input, but only the IDs are used here. For valid IDs,
+          request /groups.
+        type: array
+        items:
+          $ref: '#/definitions/Group'
+      departments:
+        description: |
+          List of departments. Department objects have ID and name for convenience
+          of input, but only the IDs are used here. For valid IDs,
+          request /departments.
+        type: array
+        items:
+          $ref: '#/definitions/Department'
+      designation:
+        type: string
+        example: Nurse
+      payroll_number:
+        type: string
+        example: A123
+      max_weekly_capacity:
+        type: string
+        example : "24.5"
+      min_weekly_capacity:
+        type: string
+        example : "10"
+      employment_type:
+        $ref: '#/definitions/EmploymentType'
+      timezone:
+        description: |
+          Timezone name in IANA format (iana.org/time-zones). If set to null, will inherit the branch timezone.
+        type: string
+        example: America/Toronto
+
+  EmployeeCreate:
+    allOf:
+    - $ref: "#/definitions/EmployeeUpdate"
+    properties:
+      branch_id:
+        type: integer
+        description: |
+          Set employee branch. If not specified, will default to branch of the user creating the employee.
+      profile_id:
+        description: |
+          Use an existing client or contact profile ID when creating an employee.
+          Demographics will be shared between this employee and the previously
+          existing entity.
+          A unique username is still required for any new employee.
+        type: integer
+        example: 7890
+      status:
+        $ref: '#/definitions/EmployeeStatusCreate'
+    required:
+      - username
+
+
+  
+
+
+
+
+
+
